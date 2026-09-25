@@ -1,0 +1,15 @@
+# data & generated outputs (never commit raw NHANES data)
+data_raw/
+data/
+results/
+figures/
+*.rds
+*.RDS
+tables.md
+
+# misc
+.Rhistory
+.RData
+__pycache__/
+*.pyc
+.DS_Store

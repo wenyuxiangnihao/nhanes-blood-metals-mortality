@@ -1,0 +1,87 @@
+variable,source_file,description,unit
+SEQN,"all files","NHANES respondent sequence number (merge key)",
+LBXBPB,"LAB06 / L06_B / L06BMT_C / PBCD_D-J","Blood lead (whole blood)",µg/dL
+LBXBCD,"LAB06 / L06_B / L06BMT_C / PBCD_D-J","Blood cadmium",µg/L
+LBXTHG,"LAB06 / L06_B / L06BMT_C / PBCD_D-J","Total blood mercury",µg/L
+LBXBSE,"PBCD_G-J (not measured every cycle)","Blood selenium",µg/L
+LBXBMN,"PBCD_G-J (not measured every cycle)","Blood manganese",µg/L
+LBXCOT,"LAB06 / L06_B / L06COT_C / COT_D-J","Serum cotinine",ng/mL
+LBDCOTLC,"LAB06 / L06_B / L06COT_C / COT_D-J","Serum cotinine comment code",
+RIDAGEYR,DEMO*,"Age at screening",years
+RIAGENDR,DEMO*,"Sex (1=male; 2=female)",
+RIDRETH1,DEMO*,"Race/ethnicity (5 categories)",
+DMDEDUC2,DEMO*,"Education level (adults 20+); codes 7/9 set to missing",
+INDFMPIR,DEMO*,"Family income-to-poverty ratio",
+RIDEXPRG,DEMO*,"Pregnancy status at exam (1=pregnant)",
+WTMEC2YR,DEMO*,"Full-sample MEC examination weight",
+SDMVPSU,DEMO*,"Masked variance pseudo-PSU (survey design)",
+SDMVSTRA,DEMO*,"Masked variance pseudo-stratum (survey design)",
+BMXBMI,BMX*,"Body mass index",kg/m^2
+BMXWAIST,BMX*,"Waist circumference",cm
+BPXSY1-BPXSY4,BPX*,"Systolic blood pressure (readings 1-4)",mmHg
+BPXDI1-BPXDI4,BPX*,"Diastolic blood pressure (readings 1-4)",mmHg
+SMQ020,SMQ*,"Smoked >=100 cigarettes in life (1=yes; 2=no); 7/9 -> missing",
+SMQ040,SMQ*,"Do you now smoke (1=every day; 2=some days; 3=not at all)",
+DIQ010,DIQ*,"Doctor told you have diabetes (1=yes)",
+BPQ020,BPQ*,"Ever told you have high blood pressure (1=yes)",
+BPQ050A,BPQ*,"Now taking medicine for high blood pressure (1=yes)",
+MCQ160B,MCQ*,"Ever told you had congestive heart failure (1=yes); 7/9 -> missing",
+MCQ160C,MCQ*,"Ever told you had coronary heart disease (1=yes); 7/9 -> missing",
+MCQ160E,MCQ*,"Ever told you had heart attack (1=yes); 7/9 -> missing",
+MCQ160F,MCQ*,"Ever told you had stroke (1=yes); 7/9 -> missing",
+ALQ101,ALQ*,"Had at least 12 drinks in any one year (1=yes)",
+ALQ110,ALQ*,"Had at least 12 drinks in lifetime (1=yes)",
+ALQ120Q,ALQ*,"How often drink alcohol over past 12 months",
+ALQ130,ALQ*,"Average number of alcoholic drinks per day",drinks/day
+PAQ605,PAQ*,"Vigorous recreational activity (yes/no)",
+PAQ620,PAQ*,"Moderate work activity (yes/no)",
+PAQ650,PAQ*,"Vigorous work activity (yes/no)",
+PAQ665,PAQ*,"Moderate recreational activity (yes/no)",
+PAQ100,PAQ*,"Physical activity (alternate 1999-2000 coding)",
+LBXSCR,"LAB18 / L40_B / L40_C / BIOPRO_D-J","Serum creatinine (measured)",mg/dL
+LBDSCR,"LAB18 / L40_B / L40_C / BIOPRO_D-J","Serum creatinine comment code",
+LBXTC,"LAB13 / L13_B / L13_C / TCHOL_D-J","Total cholesterol",mg/dL
+LBDTCSI,"LAB13 / L13_B / L13_C / TCHOL_D-J","Total cholesterol",mmol/L
+LBDHDL,"L13_B / L13_C / TCHOL_D-J","HDL cholesterol (in cholesterol file)",mg/dL
+LBXHDD,"LAB13 / L13_B / L13_C / TCHOL_D-J","HDL cholesterol (alternate name)",mg/dL
+LBDHDD,"HDL_D-J","HDL cholesterol (dedicated HDL file)",mg/dL
+LBXEPA,"FAS_G / FAS_H","EPA marine n-3 fatty acid","% of total fatty acids"
+LBXDHA,"FAS_G / FAS_H","DHA marine n-3 fatty acid","% of total fatty acids"
+LBXDP6,"FAS_G / FAS_H","Docosapentaenoic acid (DPA)","% of total fatty acids"
+eligstat,"NHANES_*_MORT_2019_PUBLIC.dat","Linkage eligibility (1=eligible)",
+mortstat,"NHANES_*_MORT_2019_PUBLIC.dat","Mortality status (1=deceased; 0=assumed alive)",
+ucod_leading,"NHANES_*_MORT_2019_PUBLIC.dat","Leading underlying cause of death (10 categories)",
+permth_int,"NHANES_*_MORT_2019_PUBLIC.dat","Person-months of follow-up from interview",months
+permth_exm,"NHANES_*_MORT_2019_PUBLIC.dat","Person-months of follow-up from exam",months
+cycle,derived,"NHANES cycle start year (1999 2001 ... 2017)",
+sbp,derived,"Mean of available systolic BP readings",mmHg
+dbp,derived,"Mean of available diastolic BP readings",mmHg
+creat,derived,"Serum creatinine (coalesced LBXSCR/LBDSCR)",mg/dL
+hdl,derived,"HDL cholesterol (coalesced LBDHDD/LBXHDD/LBDHDL)",mg/dL
+tc,derived,"Total cholesterol (LBXTC)",mg/dL
+cot,derived,"Serum cotinine (LBXCOT)",ng/mL
+educ,derived,"Education (DMDEDUC2; 7/9 recoded to missing)",
+smoke,derived,"Smoking status (0=never; 1=former; 2=current)",
+dm,derived,"Diabetes (DIQ010==1)",
+htn,derived,"Hypertension (self-report or SBP>=140 or DBP>=90)",
+cvd,derived,"Baseline CVD (any of MCQ160B/C/E/F == 1)",
+egfr,derived,"eGFR CKD-EPI 2021 (race-free)",mL/min/1.73m^2
+wt,derived,"Survey weight = WTMEC2YR / number of cycles (10)",
+time,derived,"Follow-up time (permth_exm; else permth_int)",months
+event_all,derived,"All-cause death (mortstat==1)",
+event_cvd,derived,"CVD death (ucod_leading in {1;5})",
+cvd_death,derived,"CVD death flag used to build event_cvd",
+ln_<METAL>,derived,"Natural log of the blood-metal concentration",
+z_<METAL>,derived,"Standardised log-concentration (per-SD exposure)",
+Q_<METAL>,derived,"Quartile of the raw blood-metal concentration (Q1-Q4)",
+Qmed_<METAL>,derived,"Quartile median concentration (for P-trend)",
+qc_<METAL>,derived,"Quartile score 0-3 used by quantile g-computation",
+ratio_sehg,derived,"Molar Se:Hg ratio = (LBXBSE/78.96)/(LBXTHG/200.59)",
+ln_ratio,derived,"Natural log of the Se:Hg molar ratio",
+pa_active,derived,"Physically active (any PAQ activity)",
+alc,derived,"Alcoholic drinks per day (ALQ130; 0 if ALQ101==2)",
+lncot,derived,"log(max(cotinine; 0.01)) for cotinine-adjusted models",
+agegrp,derived,"Age group (<60 / >=60) for interaction tests",
+smoke2,derived,"Smoking status as labels (never/former/current)",
+ev_<cause>,derived,"Cause-specific death flag (heart_disease/cancer/CLRD/cerebrovascular)",
+n_deaths,derived,"Number of deaths in a (sub)analysis",
