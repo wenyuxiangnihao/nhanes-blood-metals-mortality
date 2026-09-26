@@ -3,7 +3,8 @@ matplotlib.rcParams["ps.fonttype"] = 42   # embed editable text in EPS
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 import os
-F="/sandbox/workspace/heavymetal/figures"; SUBMIT="/sandbox/workspace/heavymetal/figures_submission"
+ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
+F = os.path.join(ROOT, "figures"); SUBMIT = os.path.join(ROOT, "figures_submission")
 os.makedirs(F,exist_ok=True); os.makedirs(SUBMIT,exist_ok=True)
 def savefig3(name):
     """Submission-quality export: PNG(600dpi) + TIFF(600dpi) + vector EPS."""

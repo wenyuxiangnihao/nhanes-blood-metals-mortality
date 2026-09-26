@@ -1,8 +1,16 @@
 #!/usr/bin/env Rscript
-.libPaths("/sandbox/workspace/Rlibs")
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 suppressMessages({library(survey); library(survival); library(splines)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df_plus.RDS"))
 COVS <- "RIDAGEYR + factor(RIAGENDR) + factor(RIDRETH1) + factor(educ) + INDFMPIR + BMXBMI + factor(smoke) + dm + htn + cvd"
 mkdes <- function(dd) svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~wt, nest=TRUE, data=dd)
