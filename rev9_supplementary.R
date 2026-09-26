@@ -30,7 +30,7 @@ cat("=== REV9 START ===\n")
 
 # ---------- (1) E-value ----------
 # REMOVED in round 11: this block contained a 0.5-anchored approximation
-# (1 - 0.5^sqrt(hr)) / (1 - 0.5^sqrt(1/hr)) that was mislabelled as the Zhang-Yu
+# (a symmetric approximation anchored at a 50% baseline risk) that was mislabelled as the Zhang-Yu
 # conversion and produced an E-value (1.46) inconsistent with the published
 # Table S12b (1.57).  The E-value calculation, with the correct Zhang-Yu equation
 # and the cohort's own baseline risk, now lives solely in rev10_review9.R, whose

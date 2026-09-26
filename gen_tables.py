@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import os
 ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
-"""从 results/*.csv 生成 markdown 表格 (Table 1-4)."""
+"""从 results/*.csv 生成 markdown 表格 (Table 1-4) 到 tables_generated.md。
+注意：不覆写手稿资产 tables.md（作者维护并随包提交，是 gen_supplementary.py 的输入）。"""
 import csv, os
 R = os.path.join(ROOT, "results")
-OUT = os.path.join(ROOT, "tables.md")
+OUT = os.path.join(ROOT, "tables_generated.md")
 
 def rd(fn):
     with open(os.path.join(R, fn)) as f: return list(csv.DictReader(f))
