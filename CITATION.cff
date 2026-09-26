@@ -14,7 +14,7 @@ authors:
 version: 1.0.0
 date-released: "2026-09-25"
 license: MIT
-repository-code: "https://github.com/your-org/nhanes-blood-metals-mortality"
+repository-code: "https://github.com/wenyuxiangnihao/nhanes-blood-metals-mortality"
 keywords:
   - NHANES
   - blood metals

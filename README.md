@@ -271,7 +271,7 @@ Hospital of Yangtze University, Jingzhou, Hubei, China.
 
 The repository URL appears in `CITATION.cff` (`repository-code:`) and in the Code
 availability statement of the manuscript. If you fork this repository, replace
-`https://github.com/your-org/nhanes-blood-metals-mortality` with your own URL; creating a
+`https://github.com/wenyuxiangnihao/nhanes-blood-metals-mortality` with your own URL; creating a
 Zenodo release for a GitHub tag then provides the archival DOI.
 
 ## BKMR fit
