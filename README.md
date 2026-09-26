@@ -34,32 +34,72 @@ negative-direction partial effects is more informative than ψ alone.
 
 ## 2. Repository contents
 
+## 2. Repository contents
+
 ```
-.
-├── config.R                 # single source of truth for all paths (sourced by every R script)
-├── config.py                # Python mirror of config.R (same env-var overrides)
-├── download_data.sh         # download every NHANES file + NCHS 2019 Linked Mortality File
-├── cleaning.R               # merge raw NHANES files, derive variables, build analysis datasets
-├── analysis_reanalysis_A.R  # single-metal Cox (M1–M3), quartiles/P-trend, scale metrics,
-│                            #   sensitivity analyses, subgroups, Table 1  -> analysis_df_plus.RDS
-├── analysis_reanalysis_B.R  # Se & Mn, period stability, cause-specific, Se:Hg ratio
-├── rcs3.R                   # restricted cubic spline dose–response curves
-├── analysis_neversmoker.R   # never-smoker / cotinine-restricted sensitivity analyses
-├── lod_table.R              # limit-of-detection summary per cycle
-├── make_figs.py             # Figures 1–5 + Figure S1 (PNG 600 dpi / TIFF 600 dpi / vector EPS)
-├── flow_figure.py           # Figure S1 flow diagram (PNG/TIFF/EPS)
-├── cleaning_v6.R            # final cleaning script used for the published analysis
-├── rev5_sensitivity.R       # round-3 sensitivity analyses (subsample weights, delayed entry, ...)
-├── rev6_A.R, rev6_B.R       # direction-stability replicates, Fine–Gray, stepwise adjustment, ...
-├── qgcss_splitsample.R      # quantile g-computation with sample splitting (Table S19)
-├── rev7_mi_ipw.R            # multiple imputation + inverse probability weighting (Table S20)
-├── rev7_mi_ipw_summarize.R  # re-summarises the MI/IPW output without refitting
-├── rcs_fix_contrast.R       # restricted cubic spline contrast variance (Figures 4 and 5)
-├── gen_tables.py            # markdown Tables 1–4 from results/*.csv
-├── run_all.sh               # runs cleaning -> analyses -> figures -> tables (set -e)
-├── data_dictionary.csv      # variable name -> meaning / unit
-├── CITATION.cff, .zenodo.json, LICENSE (MIT)
-└── README.md
+├── CITATION.cff                  
+├── LICENSE                       
+├── README.md                     
+├── R_packages.txt                
+├── analysis_core.R               
+├── analysis_extra.R              
+├── analysis_fish.R               
+├── analysis_mixture.R            
+├── analysis_neversmoker.R        
+├── analysis_reanalysis_A.R       
+├── analysis_reanalysis_B.R       
+├── analysis_se_mn.R              
+├── analysis_supp.R               
+├── bkmr_local.R                  
+├── bkmr_post.R                   
+├── bkmr_run.R                    
+├── build_review_package.py       
+├── cleaning.R                    # earlier version of the cleaning script, kept for provenance
+├── cleaning_v6.R                 # FINAL cleaning script: merges the raw files, derives variables, builds data/analysis_df.rds
+├── config.R                      # single source of truth for the four directories (reference implementation; see section 5)
+├── config.py                     # Python mirror of config.R
+├── data_dictionary.csv           
+├── download_core.py              
+├── download_cov.sh               
+├── download_covariates.py        
+├── download_data.sh              # downloads every NHANES file + the NCHS 2019 Linked Mortality File into data_raw/
+├── download_missing.sh           
+├── explore_vars.R                
+├── fill_author.py                
+├── fill_author2.py               
+├── fix_manuscript.py             
+├── gen_supplementary.py          
+├── gen_tables.py                 
+├── gen_urls.py                   
+├── lod_table.R                   
+├── make_figs.py                  
+├── md_to_docx.py                 
+├── patch_units_verify.py         
+├── ph_test_10cyc.R               
+├── plot_figures.py               
+├── publish_to_github.ps1         
+├── pubmed_key.py                 
+├── pubmed_verify.py              
+├── qgcss_splitsample.R           
+├── rcs_fix_contrast.R            
+├── repair_files.py               
+├── requirements.txt              
+├── rev5_manuscript_edits.py      
+├── rev5_sensitivity.R            
+├── rev6_A.R                      
+├── rev6_B.R                      
+├── rev7_edits_1.py               
+├── rev7_edits_2.py               
+├── rev7_edits_3.py               
+├── rev7_mi_ipw.R                 
+├── rev7_mi_ipw_summarize.R       
+├── rev8_direction_stability.R    
+├── rev9_supplementary.R          
+├── run_all.sh                    
+├── test_bkmr.R                   
+├── trim_abstract.py              
+├── trim_abstract2.py             
+├── verify_sizes.py               
 ```
 
 Output directories (`data/`, `results/`, `figures/`) are created automatically
@@ -153,27 +193,26 @@ pip install matplotlib numpy pandas Pillow
 
 ## 5. Configuration
 
-`config.R` (and `config.py`) define exactly four directories, each overridable
-by an environment variable so the code can run anywhere:
+Every script resolves its own project root, so the repository runs from anywhere:
 
-| Variable | Default | Contents |
-|---|---|---|
-| `RAW_DIR` | `./data_raw` | downloaded NHANES `.XPT` + `.dat` files |
-| `DATA_DIR` | `./data` | cleaned `analysis_df.rds`, `analysis_df_plus.RDS` |
-| `RESULTS_DIR` | `./results` | all result tables (`*.csv`) |
-| `FIG_DIR` | `./figures` | all figures (`*.png`, `*.tiff`, `*.eps`) |
+* the environment variable `NHANES_ROOT` is used if it is set;
+* otherwise the directory that contains the script is used (for R scripts this is
+  read from `commandArgs()`; for Python scripts from `__file__`);
+* R scripts additionally prepend `../Rlibs` to `.libPaths()` when that directory
+  exists, which is convenient for a self-contained library but is optional.
 
-Every script loads these automatically (R scripts `source(config.R)`, Python
-scripts `from config import ...`). To run on a cluster, e.g.:
+`config.R` and `config.py` show the same four directories and their environment
+overrides (`RAW_DIR`, `DATA_DIR`, `RESULTS_DIR`, `FIG_DIR`, all defaulting to
+subdirectories of the project root). They are a reference implementation rather
+than something every script sources.
+
+To run against other directories:
 
 ```bash
-RAW_DIR=/mnt/nhanes RESULTS_DIR=/fast/res Rscript analysis_reanalysis_B.R
+NHANES_ROOT=/mnt/nhanes Rscript analysis_reanalysis_B.R
 ```
 
-`HM_CONFIG` can point to a `config.R` located elsewhere.
-
 ---
-
 ## 6. Running the analysis
 
 ```bash
@@ -184,26 +223,30 @@ RAW_DIR=/mnt/nhanes RESULTS_DIR=/fast/res Rscript analysis_reanalysis_B.R
 ./run_all.sh
 ```
 
-`run_all.sh` executes, with `set -e`:
+`run_all.sh` runs these 14 steps with `set -euo pipefail`:
 
 ```
-download_data.sh (once)  →
-cleaning.R               → data/analysis_df.rds        (+ data/exclusion_counts.csv)
-analysis_reanalysis_A.R  → results/*.csv               (+ data/analysis_df_plus.RDS)
-analysis_reanalysis_B.R  → results/*.csv
-rcs3.R                   → results/rcs_curves*.csv
-analysis_neversmoker.R   → results/neversmoker_*.csv, cadmium_clrd_by_smoking_*.csv
-lod_table.R              → results/lod_by_cycle_10cyc.csv
-make_figs.py             → figures/fig1..fig5, figS1 (png/tiff/eps)
-flow_figure.py           → figures/figS1_flow (png/tiff/eps)
-gen_tables.py            → tables.md
+ 1  cleaning_v6.R             -> data/analysis_df.rds (+ data/exclusion_counts.csv)
+ 2  analysis_reanalysis_A.R   -> results/*.csv (+ data/analysis_df_plus.RDS)
+ 3  analysis_reanalysis_B.R   -> results/*.csv
+ 4  rcs_fix_contrast.R        -> results/rcs_curves*.csv  (correct contrast variance)
+ 5  analysis_neversmoker.R    -> results/neversmoker_*.csv, cadmium_clrd_by_smoking_*.csv
+ 6  lod_table.R               -> results/lod_by_cycle_10cyc.csv
+ 7  rev5_sensitivity.R        -> results/rev5_*.csv
+ 8  rev6_A.R, rev6_B.R        -> results/rev6_*.csv
+ 9  rev7_mi_ipw.R             -> results/rev7_mi_ipw_summary.csv (Table S20)
+10  rev8_direction_stability.R-> results/rev8_direction_stability.csv (Table S13)
+11  rev9_supplementary.R      -> results/rev9_*.csv (Table S21)
+12  rev10_review9.R           -> results/rev10_*.csv (E-value conversion; Table S14 column)
+13  make_figs.py              -> figures/fig1..fig5, figS1 (png/tiff/eps).  THE ONLY FIGURE ENTRY POINT
+14  gen_tables.py             -> tables.md  ;  gen_supplementary.py -> submission/supplementary_tables.docx
 ```
 
-Each script is also runnable on its own (e.g. `Rscript rcs3.R`), as long as the
-preceding datasets exist. All scripts assume the working directory is the
-repository root, but paths are resolved from `config.R` so they work from
-anywhere.
+Each script also runs on its own (for example `Rscript rev10_review9.R`) as long as
+the preceding datasets exist. No script writes a figure that another script also
+writes: `make_figs.py` is the single figure entry point.
 
+### BKMR (optional)
 ### BKMR (optional)
 
 The exploratory BKMR fit requires the `bkmr` package and is computationally
@@ -262,7 +305,7 @@ Machine-readable citation metadata are in `CITATION.cff` and `.zenodo.json`.
 If you use this code, please cite:
 
 > Wen Y. *Opposing directions in blood metal mixtures and mortality in US
-> adults.* (2025).
+> adults.* (2026).
 
 **Contact:** Yuxiang Wen — Department of Cardiology, The First Affiliated
 Hospital of Yangtze University, Jingzhou, Hubei, China.
@@ -271,7 +314,7 @@ Hospital of Yangtze University, Jingzhou, Hubei, China.
 
 The repository URL appears in `CITATION.cff` (`repository-code:`) and in the Code
 availability statement of the manuscript. If you fork this repository, replace
-`https://github.com/wenyuxiangnihao/nhanes-blood-metals-mortality` with your own URL; creating a
+`the repository URL of your fork` with your own URL; creating a
 Zenodo release for a GitHub tag then provides the archival DOI.
 
 ## BKMR fit
@@ -302,6 +345,17 @@ combines the results by Rubin's rules, and it also re-analyses the complete-case
 inverse probability of inclusion weights. `rev7_mi_ipw_summarize.R` regenerates
 `results/rev7_mi_ipw_summary.csv` from the saved intermediate objects without refitting.
 
+`rev8_direction_stability.R` recomputes the direction-assignment stability analysis
+(Table S13) with the quartile cut-points defined within each mixture's own sample, so that
+the full-sample coefficients correspond exactly to the directional sums of Table 4; it
+supersedes the corresponding part of `rev6_A.R`.
+
 `rcs_fix_contrast.R` recomputes the restricted cubic spline confidence bands from the
 variance of the spline contrast, which is the correct variance for a dose-response curve
 relative to its reference point (Figures 4 and 5).
+
+## Citation
+
+If you use this code, please cite the archived version:/n/n> Wen Y. *Opposing directions in blood metal mixtures and mortality in US adults.* Zenodo. https://doi.org/10.5281/zenodo.22975596 (concept DOI; resolves to the latest version).
+
+Source repository: https://github.com/wenyuxiangnihao/nhanes-blood-metals-mortality

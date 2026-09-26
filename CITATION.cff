@@ -11,10 +11,10 @@ abstract: >-
 authors:
   - family-names: Wen
     given-names: Yuxiang
-version: 1.0.0
-date-released: "2026-09-25"
+version: 1.0.1
+date-released: "2026-09-26"
 license: MIT
-repository-code: "https://github.com/wenyuxiangnihao/nhanes-blood-metals-mortality"
+doi: 10.5281/zenodo.22975596
 keywords:
   - NHANES
   - blood metals

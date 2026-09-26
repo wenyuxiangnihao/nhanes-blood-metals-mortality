@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import os
+ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
 """下载血重金属 LAB06/PBCD 全 10 周期 + 2019 公共使用死亡链接."""
 import os, urllib.request, time
 
-RAW = "/sandbox/workspace/heavymetal/data_raw"
+RAW = os.path.join(ROOT, "data_raw")
 os.makedirs(RAW, exist_ok=True)
 
 PBCD = [(1999, "LAB06"), (2001, "L06B"), (2003, "L06C"),

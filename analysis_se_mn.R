@@ -1,11 +1,19 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # 硒/锰 及 5 金属补充分析（2011-2018 子集）
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df.rds"))
 COVS <- "RIDAGEYR + factor(RIAGENDR) + factor(RIDRETH1) + factor(educ) + INDFMPIR + BMXBMI + factor(smoke) + dm + htn + cvd"
 mk <- function(x) svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~wt, nest=TRUE, data=x)

@@ -1,4 +1,13 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # REV6 Part A -- 稳健性分析A：分解/方向稳定性、Fine-Gray、排除基线癌症、
 #               逐步调整、铅四分位人年
@@ -6,11 +15,10 @@
 # 输出: results/rev6_*.csv
 # 严禁修改 data/ 与 results/ 下任何既有文件
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival)})
 options(survey.lonely.psu = "adjust")
-D <- "/sandbox/workspace/heavymetal/data"
-R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data")
+R <- file.path(ROOT, "results")
 
 d <- readRDS(file.path(D, "analysis_df_v6.rds"))
 MET3 <- c("LBXBPB", "LBXBCD", "LBXTHG")

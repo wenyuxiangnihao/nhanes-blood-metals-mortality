@@ -1,7 +1,15 @@
-.libPaths("/sandbox/workspace/Rlibs")
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 suppressMessages({library(survey);library(survival)})
 options(survey.lonely.psu="adjust")
-d <- readRDS("/sandbox/workspace/heavymetal/data/analysis_df.rds")
+d <- readRDS(file.path(ROOT, "data/analysis_df.rds"))
 for(m in c("LBXBPB","LBXBCD","LBXTHG")){ v<-log(d[[m]]); d[[paste0("z_",m)]]<-(v-mean(v,na.rm=TRUE))/sd(v,na.rm=TRUE) }
 COVS <- "RIDAGEYR + factor(RIAGENDR) + factor(RIDRETH1) + factor(educ) + INDFMPIR + BMXBMI + factor(smoke) + dm + htn + cvd"
 mkd <- function(dd) svydesign(id=~SDMVPSU,strata=~SDMVSTRA,weights=~wt,nest=TRUE,data=dd)
@@ -14,4 +22,4 @@ for(m in c("LBXBPB","LBXBCD","LBXTHG")){
   z <- cox.zph(f0); pgl <- z$table["GLOBAL","p"]
   out <- rbind(out,data.frame(metal=m,p_PH_exposure=p_int,p_PH_global=pgl))
 }
-print(out,row.names=FALSE); write.csv(out,"/sandbox/workspace/heavymetal/results/ph_test_10cyc.csv",row.names=FALSE)
+print(out,row.names=FALSE); write.csv(out,file.path(ROOT, "results/ph_test_10cyc.csv"),row.names=FALSE)

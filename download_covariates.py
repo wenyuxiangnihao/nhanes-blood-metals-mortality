@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import os
+ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
 """下载血重金属死亡分析的协变量文件（10 周期）+ 完整性校验."""
 import os, urllib.request, time
 
-RAW = "/sandbox/workspace/heavymetal/data_raw"
+RAW = os.path.join(ROOT, "data_raw")
 os.makedirs(RAW, exist_ok=True)
 CYC = [(1999, ""), (2001, "_B"), (2003, "_C"), (2005, "_D"), (2007, "_E"),
        (2009, "_F"), (2011, "_G"), (2013, "_H"), (2015, "_I"), (2017, "_J")]

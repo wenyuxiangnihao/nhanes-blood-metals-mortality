@@ -1,0 +1,11 @@
+# Python packages used for the figures and the document pipeline
+# (developed and tested on Python 3.12; the pinned minima below are those of the reference environment)
+numpy>=1.26
+scipy>=1.11
+matplotlib>=3.8
+pandas>=2.1
+python-docx>=1.1
+
+# Build note: the archived .pyc bytecode is from a newer interpreter than 3.12;
+# __pycache__ is excluded from the archive and listed in .gitignore, so only the
+# .py sources are shipped.

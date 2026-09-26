@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
+import os
+ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
 """生成图表：森林图 / qgcomp权重 / 四分位剂量反应"""
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np, csv, os
 
-R = "/sandbox/workspace/heavymetal/results"
-F = "/sandbox/workspace/heavymetal/figures"
+R = os.path.join(ROOT, "results")
+F = os.path.join(ROOT, "figures")
 os.makedirs(F, exist_ok=True)
 
 def readcsv(fn):

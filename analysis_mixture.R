@@ -1,11 +1,19 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # 混合暴露 (quantile g-computation, 加权Cox) + 四分位剂量反应
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival)})
 options(survey.lonely.psu = "adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df.rds"))
 MET3 <- c("LBXBPB","LBXBCD","LBXTHG")
 MET5 <- c("LBXBPB","LBXBCD","LBXTHG","LBXBSE","LBXBMN")

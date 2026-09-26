@@ -1,9 +1,17 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # 补充分析：Cox 比例风险假定(暴露xlog时间交互) + 交互检验 FDR + 子集样本量
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df.rds"))
 MET <- c("LBXBPB","LBXBCD","LBXTHG")
 for(m in MET){ v <- log(d[[m]]); d[[paste0("z_",m)]] <- (v-mean(v,na.rm=TRUE))/sd(v,na.rm=TRUE) }

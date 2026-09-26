@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import os
+ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
 """从 results/*.csv 生成 markdown 表格 (Table 1-4)."""
 import csv, os
-R = "/sandbox/workspace/heavymetal/results"
-OUT = "/sandbox/workspace/heavymetal/tables.md"
+R = os.path.join(ROOT, "results")
+OUT = os.path.join(ROOT, "tables.md")
 
 def rd(fn):
     with open(os.path.join(R, fn)) as f: return list(csv.DictReader(f))

@@ -1,6 +1,6 @@
 #!/bin/bash
 # 协变量批量下载（curl 版，带完整性校验）
-cd /sandbox/workspace/heavymetal/data_raw || exit 1
+cd ${NHANES_ROOT:-$(pwd)}/data_raw || exit 1
 BASE="https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public"
 OK=0; FAIL=0; FAILED=""
 

@@ -1,10 +1,18 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # Redraw BKMR summary figures from results/bkmr_*_summaries.csv (no BKMR fit needed).
 # Content is identical to the original figures/bkmr_*.png; only export formats/resolution added.
-.libPaths("/sandbox/workspace/Rlibs")
-R   <- "/sandbox/workspace/heavymetal/results"
-F   <- "/sandbox/workspace/heavymetal/figures"
-SUB <- "/sandbox/workspace/heavymetal/figures_submission"
+R   <- file.path(ROOT, "results")
+F   <- file.path(ROOT, "figures")
+SUB <- file.path(ROOT, "figures_submission")
 dir.create(F, showWarnings = FALSE); dir.create(SUB, showWarnings = FALSE)
 ov <- read.csv(file.path(R,"bkmr_overall_summaries.csv"))
 pr <- read.csv(file.path(R,"bkmr_single_summaries.csv"))

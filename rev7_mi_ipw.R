@@ -1,4 +1,13 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # REV7 Part C -- 缺失数据敏感性分析：多重插补 (MI) 与逆概率加权 (IPW)
 # 回应审稿意见 M4: "Covariates analysed complete-case ... MNAR cannot be excluded"
@@ -17,7 +26,6 @@
 #       results/rev7_mi_ipw_detail.csv   (每插补集明细)
 #       results/rev7_ipw_diagnostics.txt
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival); library(MASS)})
 options(survey.lonely.psu = "adjust")
 
@@ -27,15 +35,15 @@ ITER <- if (length(ARGS) >= 2) as.integer(ARGS[2]) else 10L
 SEED <- 20260925L
 set.seed(SEED)
 
-D <- "/sandbox/workspace/heavymetal/data"
-R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data")
+R <- file.path(ROOT, "results")
 dir.create(R, showWarnings = FALSE)
 
 MET3   <- c("LBXBPB", "LBXBCD", "LBXTHG")
 COVS   <- "RIDAGEYR + factor(RIAGENDR) + factor(RIDRETH1) + factor(educ) + INDFMPIR + BMXBMI + factor(smoke) + dm + htn + cvd"
 OUTS   <- c("event_all", "event_cvd")
 IMPV   <- c("educ", "INDFMPIR", "BMXBMI", "smoke", "dm", "htn", "cvd")   # 需插补
-PREDV  <- c("RIDAGEYR", "RIAGENDR", "RIDRETH1", "cycle", "time", "event_all",
+PREDV  <- c("RIDAGEYR", "RIAGENDR", "RIDRETH1", "cycle", "time", "event_all", "event_cvd",
             "z_LBXBPB", "z_LBXBCD", "z_LBXTHG")                          # 完全观测预测子
 
 cc <- readRDS(file.path(D, "analysis_df_v6.rds"))

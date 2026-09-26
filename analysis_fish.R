@@ -1,13 +1,21 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # 汞的"鱼类/海洋n-3"混杂敏感性分析
 #  2011-2014 子集：FAS(血清 EPA+DHA) 作为海产摄入代理
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival); library(foreign)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; RAW <- "/sandbox/workspace/heavymetal/data_raw"
-R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); RAW <- file.path(ROOT, "data_raw")
+R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df.rds"))
 for(m in c("LBXBPB","LBXBCD","LBXTHG")){ v<-log(d[[m]]); d[[paste0("z_",m)]]<-(v-mean(v,na.rm=TRUE))/sd(v,na.rm=TRUE) }
 

@@ -1,4 +1,13 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # Round-2 review, Major #4: never-smoker sensitivity analyses
 #   (a) main per-SD(ln) Cox models restricted to never smokers
@@ -7,10 +16,9 @@
 #   (d) further restriction: never smokers with serum cotinine < 10 ng/mL
 #   (e) cause-specific cadmium-CLRD stratified by smoking status
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df.rds"))
 MET3 <- c("LBXBPB","LBXBCD","LBXTHG")
 for(m in MET3){ d[[paste0("ln_",m)]] <- log(d[[m]]) }

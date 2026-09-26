@@ -1,11 +1,19 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # RE-ANALYSIS (10 cycles) -- Part B: tasks 2(h)-(l)
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival); library(foreign); library(splines)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"; RAW <- "/sandbox/workspace/heavymetal/data_raw"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results"); RAW <- file.path(ROOT, "data_raw")
 d <- readRDS(file.path(D,"analysis_df_plus.RDS"))
 cat("analytic n =", nrow(d), "\n")
 MET3 <- c("LBXBPB","LBXBCD","LBXTHG"); MET5 <- c(MET3,"LBXBSE","LBXBMN")
@@ -26,8 +34,11 @@ rcs_fit <- function(dd, m, event, ngrid=40){
   grid <- seq(quantile(zz,.01,na.rm=TRUE), quantile(zz,.99,na.rm=TRUE), length=ngrid)
   B <- predict(bs, grid)
   b <- coef(fit)[c("s1","s2","s3")]; V <- vcov(fit)[c("s1","s2","s3"),c("s1","s2","s3")]
-  lp <- as.numeric(B %*% b); se <- sqrt(rowSums((B %*% V) * B)); ref <- which.min(abs(grid - median(zz,na.rm=TRUE)))
-  data.frame(metal=m, z=grid, HR=exp(lp-lp[ref]), lo=exp(lp-lp[ref]-1.96*sqrt(se^2+se[ref]^2)), hi=exp(lp-lp[ref]+1.96*sqrt(se^2+se[ref]^2)))
+  ref <- which.min(abs(grid - median(zz,na.rm=TRUE)))
+  Dm <- sweep(B, 2, B[ref,], "-")            # B(x) - B(reference): the contrast basis
+  lp <- as.numeric(Dm %*% b)
+  se <- sqrt(pmax(rowSums((Dm %*% V) * Dm), 0))   # Var = Dm V Dm', exactly 0 at the reference
+  data.frame(metal=m, z=grid, HR=exp(lp), lo=exp(lp-1.96*se), hi=exp(lp+1.96*se))
 }
 
 # ---------------- (h) Se & Mn ----------------

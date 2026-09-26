@@ -1,3 +1,5 @@
+import os
+ROOT = os.environ.get("NHANES_ROOT") or os.path.dirname(os.path.abspath(__file__))
 # -*- coding: utf-8 -*-
 """Minimal, dependency-light Markdown -> DOCX converter tuned for this manuscript.
 
@@ -199,7 +201,7 @@ def build(md_path, out_path, title_center=True, double=True):
 
 
 if __name__ == '__main__':
-    BASE = '/sandbox/workspace/heavymetal'
+    BASE = ROOT
     OUT = os.path.join(BASE, 'submission')
     build(os.path.join(BASE, 'manuscript.md'), os.path.join(OUT, 'manuscript.docx'))
     build(os.path.join(BASE, 'highlights.md'), os.path.join(OUT, 'highlights.docx'), title_center=False, double=False)

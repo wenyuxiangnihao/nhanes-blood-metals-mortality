@@ -1,11 +1,19 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # RCS 非线性 + 亚组交互 + 敏感性分析
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival); library(splines)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
 d <- readRDS(file.path(D,"analysis_df.rds"))
 MET <- c("LBXBPB","LBXBCD","LBXTHG")
 for(m in MET){ v<-log(d[[m]]); d[[paste0("z_",m)]] <- (v-mean(v,na.rm=TRUE))/sd(v,na.rm=TRUE) }
@@ -42,11 +50,14 @@ for(m in MET){
   ref <- predict(fit2, newdata=transform(nd, zz=median(zz)), type="lp")  # not used
   # reference = median of grid index
   mid <- which.min(abs(grid - median(zz)))
-  lp <- pr$fit; se <- pr$se.fit
-  hr <- exp(lp - lp[mid]); lo <- exp(lp - lp[mid] - 1.96*sqrt(se^2+se[mid]^2)); hi <- exp(lp - lp[mid] + 1.96*sqrt(se^2+se[mid]^2))
-  rcs <- rbind(rcs, data.frame(metal=m, z=grid, HR=hr, lo=lo, hi=hi))
+  # NOTE (round 9): this legacy block computed sqrt(se^2 + se_ref^2), which is NOT the
+  # variance of the contrast and does not vanish at the reference point.  It has been
+  # retired.  The corrected spline curves are produced by rcs_fix_contrast.R, which owns
+  # rcs_curves.csv / rcs_se_mn.csv; this script no longer writes those files, so a stale
+  # (and incorrect) curve can no longer overwrite the correct one.
+  cat("  [skipped] RCS block retired; see rcs_fix_contrast.R\n")
 }
-write.csv(rcs, file.path(R,"rcs_curves.csv"), row.names=FALSE)
+if (FALSE) write.csv(rcs, file.path(R,"rcs_curves.csv"), row.names=FALSE)
 
 # ---------- subgroup (interaction) ----------
 d$agegrp <- ifelse(d$RIDAGEYR < 60, "<60", ">=60")

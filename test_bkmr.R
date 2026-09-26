@@ -58,4 +58,3 @@ if (file.exists("heavymetal_analysis_for_local.csv")) {
 
 cat("\n===== SUMMARY =====\n")
 cat(paste(res, collapse = "\n"), "\n")
-cat("\nPlease copy this whole window and send it back.\n")

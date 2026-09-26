@@ -1,10 +1,18 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # Task 4: BKMR (binomial/probit) on a random subsample N=800, iter=2000
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages(library(bkmr))
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"; F <- "/sandbox/workspace/heavymetal/figures"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results"); F <- file.path(ROOT, "figures")
 set.seed(20260917)
 ITER <- 2000; NMAX <- 800
 d <- readRDS(file.path(D,"analysis_df.rds"))

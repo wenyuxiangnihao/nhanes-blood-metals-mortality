@@ -1,8 +1,16 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # 探查各周期协变量文件的关键变量名（为清洗 coalesce 做准备）
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages(library(foreign))
-RAW <- "/sandbox/workspace/heavymetal/data_raw"
+RAW <- file.path(ROOT, "data_raw")
 
 CYC <- list(
   list(yr=1999,suf="",  bio="LAB18",   chol="LAB13"),

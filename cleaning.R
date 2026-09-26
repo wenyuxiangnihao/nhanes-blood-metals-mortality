@@ -1,12 +1,20 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # 血重金属 × 死亡  数据清洗与合并
 # 输出: data/analysis_df.rds   data/exclusion_counts.csv
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(foreign); library(survey); library(survival)})
-RAW <- "/sandbox/workspace/heavymetal/data_raw"
-OUT <- "/sandbox/workspace/heavymetal/data"
+RAW <- file.path(ROOT, "data_raw")
+OUT <- file.path(ROOT, "data")
 dir.create(OUT, showWarnings=FALSE)
 
 CYC <- list(

@@ -1,6 +1,6 @@
 #!/bin/bash
 # 只下载缺失/可疑文件，提高并发
-cd /sandbox/workspace/heavymetal/data_raw || exit 1
+cd ${NHANES_ROOT:-$(pwd)}/data_raw || exit 1
 : > /tmp/missing.txt
 while read -r u; do
   f=$(basename "$u")

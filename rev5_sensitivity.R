@@ -1,4 +1,13 @@
 #!/usr/bin/env Rscript
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 # ============================================================
 # REV5: five requested sensitivity analyses (NHANES blood metals x mortality)
 #   (1) WTSH2YR subsample-weight sensitivity
@@ -9,11 +18,10 @@
 #   (6) <LOD (assay floor) exclusion sensitivity
 # All outputs -> results/rev5_*.csv
 # ============================================================
-.libPaths("/sandbox/workspace/Rlibs")
 suppressMessages({library(survey); library(survival); library(foreign)})
 options(survey.lonely.psu="adjust")
-D <- "/sandbox/workspace/heavymetal/data"; R <- "/sandbox/workspace/heavymetal/results"
-RAW <- "/sandbox/workspace/heavymetal/data_raw"
+D <- file.path(ROOT, "data"); R <- file.path(ROOT, "results")
+RAW <- file.path(ROOT, "data_raw")
 dir.create(R, showWarnings=FALSE)
 
 d <- readRDS(file.path(D,"analysis_df.rds"))

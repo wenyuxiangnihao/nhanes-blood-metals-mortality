@@ -1,7 +1,15 @@
-.libPaths("/sandbox/workspace/Rlibs")
+# --- project root: $NHANES_ROOT, or the folder containing this script --------
+if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
+  .ca <- commandArgs(trailingOnly = FALSE)
+  .cf <- sub("^--file=", "", .ca[grep("^--file=", .ca)])
+  Sys.setenv(NHANES_ROOT = if (length(.cf)) dirname(normalizePath(.cf)) else getwd())
+}
+ROOT <- Sys.getenv("NHANES_ROOT")
+if (dir.exists(file.path(dirname(ROOT), "Rlibs")))
+  .libPaths(c(file.path(dirname(ROOT), "Rlibs"), .libPaths()))
 suppressMessages({library(survey); library(survival)})
 options(survey.lonely.psu="adjust")
-d <- readRDS("/sandbox/workspace/heavymetal/data/analysis_df.rds")
+d <- readRDS(file.path(ROOT, "data/analysis_df.rds"))
 COVS <- "RIDAGEYR + factor(RIAGENDR) + factor(RIDRETH1) + factor(educ) + INDFMPIR + BMXBMI + factor(smoke) + dm + htn + cvd"
 mkdes <- function(dd) svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~wt, nest=TRUE, data=dd)
 MET <- c("LBXBPB","LBXBCD","LBXTHG")
@@ -40,7 +48,7 @@ for(ev in c("event_all","event_cvd")){
       HR_neg=exp(sumn), neg_lo=exp(sumn-1.96*senn), neg_hi=exp(sumn+1.96*senn)))
   }
 }
-write.csv(out, "/sandbox/workspace/heavymetal/results/rev7_qgcss.csv", row.names=FALSE)
+write.csv(out, file.path(ROOT, "results/rev7_qgcss.csv"), row.names=FALSE)
 cat("\n== sample-splitting (QGCSS, B=200): sign pattern frequency ==\n")
 print(table(out$outcome, out$sign_pattern))
 cat("\n== distribution of the partial effects across splits ==\n")
