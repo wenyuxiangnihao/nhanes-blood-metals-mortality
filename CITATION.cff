@@ -5,14 +5,15 @@ title: "Opposing directions in blood metal mixtures and mortality in US adults"
 abstract: >-
   Analysis code for a pooled NHANES study (1999-2018, 10 cycles) examining
   associations of blood lead, cadmium and mercury (plus selenium and manganese)
-  with all-cause and cardiovascular mortality, including single-metal Cox
-  models, quantile g-computation, Bayesian kernel machine regression, restricted
-  cubic splines, cause-specific analyses and multiple sensitivity analyses.
+  with all-cause and cardiovascular mortality, including survey-weighted
+  single-metal Cox models, quantile g-computation with directional decomposition,
+  restricted cubic splines, cause-specific analyses, delayed-entry and
+  selection-bias characterisation, and multiple sensitivity analyses.
 authors:
   - family-names: Wen
     given-names: Yuxiang
-version: 1.0.1
-date-released: "2026-09-26"
+version: 1.0.4
+date-released: "2026-09-27"
 license: MIT
 doi: 10.5281/zenodo.22975596
 keywords:
@@ -27,5 +28,5 @@ keywords:
   - cardiovascular mortality
   - mixture
   - quantile g-computation
-  - BKMR
+  - selection bias
   - survival analysis

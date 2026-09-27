@@ -34,72 +34,61 @@ negative-direction partial effects is more informative than ψ alone.
 
 ## 2. Repository contents
 
-## 2. Repository contents
-
 ```
-├── CITATION.cff                  
-├── LICENSE                       
-├── README.md                     
-├── R_packages.txt                
-├── analysis_core.R               
-├── analysis_extra.R              
-├── analysis_fish.R               
-├── analysis_mixture.R            
-├── analysis_neversmoker.R        
-├── analysis_reanalysis_A.R       
-├── analysis_reanalysis_B.R       
-├── analysis_se_mn.R              
-├── analysis_supp.R               
-├── bkmr_local.R                  
-├── bkmr_post.R                   
-├── bkmr_run.R                    
-├── build_review_package.py       
-├── cleaning.R                    # earlier version of the cleaning script, kept for provenance
-├── cleaning_v6.R                 # FINAL cleaning script: merges the raw files, derives variables, builds data/analysis_df.rds
-├── config.R                      # single source of truth for the four directories (reference implementation; see section 5)
-├── config.py                     # Python mirror of config.R
-├── data_dictionary.csv           
-├── download_core.py              
-├── download_cov.sh               
-├── download_covariates.py        
-├── download_data.sh              # downloads every NHANES file + the NCHS 2019 Linked Mortality File into data_raw/
-├── download_missing.sh           
-├── explore_vars.R                
-├── fill_author.py                
-├── fill_author2.py               
-├── fix_manuscript.py             
-├── gen_supplementary.py          
-├── gen_tables.py                 
-├── gen_urls.py                   
-├── lod_table.R                   
-├── make_figs.py                  
-├── md_to_docx.py                 
-├── patch_units_verify.py         
-├── ph_test_10cyc.R               
-├── plot_figures.py               
-├── publish_to_github.ps1         
-├── pubmed_key.py                 
-├── pubmed_verify.py              
-├── qgcss_splitsample.R           
-├── rcs_fix_contrast.R            
-├── repair_files.py               
-├── requirements.txt              
-├── rev5_manuscript_edits.py      
-├── rev5_sensitivity.R            
-├── rev6_A.R                      
-├── rev6_B.R                      
-├── rev7_edits_1.py               
-├── rev7_edits_2.py               
-├── rev7_edits_3.py               
-├── rev7_mi_ipw.R                 
-├── rev7_mi_ipw_summarize.R       
-├── rev8_direction_stability.R    
-├── rev9_supplementary.R          
-├── run_all.sh                    
-├── test_bkmr.R                   
-├── trim_abstract.py              
-├── trim_abstract2.py             
-├── verify_sizes.py               
+├── .gitignore                   # ignores data_raw/, data/, results/, figures/
+├── .zenodo.json                 # Zenodo deposition metadata (the concept DOI follows the latest version)
+├── CITATION.cff                 # machine-readable citation metadata (version + concept DOI)
+├── LICENSE                      # MIT licence
+├── README.md                    # this file
+├── R_packages.txt               # R package versions used
+├── analysis_core.R              # table inputs: single-metal Cox (M1-M3), quartiles, scale metrics
+├── analysis_extra.R             # table inputs: interaction and stratified analyses
+├── analysis_fish.R              # table inputs: marine n-3 (EPA+DHA) subsample analyses
+├── analysis_mixture.R           # table inputs: quantile g-computation (net effect and directional decomposition)
+├── analysis_neversmoker.R       # never-smoker sensitivity analyses (Table S7)
+├── analysis_reanalysis_A.R      # single-metal Cox M1-M3, quartiles, scale metrics (Table 2), also writes data/analysis_df_plus.RDS
+├── analysis_reanalysis_B.R      # selenium/manganese, period stability, cause-specific, Se:Hg product term
+├── analysis_se_mn.R             # table inputs: selenium and manganese
+├── analysis_supp.R              # table inputs: additional sensitivity analyses
+├── bkmr_local.R                 # exploratory BKMR helper (NOT reported in the manuscript; see the note under 'Running the analysis')
+├── bkmr_post.R                  # regenerates the exploratory BKMR summary objects without refitting (NOT reported in the manuscript)
+├── bkmr_run.R                   # exploratory BKMR fit (NOT reported in the manuscript)
+├── cleaning.R                   # earlier version of the cleaning script, kept for provenance
+├── cleaning_v6.R                # FINAL cleaning script: merges the raw files, derives variables, builds data/analysis_df.rds and data/all_merged_df.rds
+├── config.R                     # single source of truth for the four directories (reference implementation; see section 5)
+├── config.py                    # Python mirror of config.R
+├── data_dictionary.csv          # variable dictionary for the derived analysis dataset
+├── download_core.py             # download helper used by download_data.sh
+├── download_cov.sh              # covariate-file download helper
+├── download_covariates.py       # covariate-file download helper (Python)
+├── download_data.sh             # downloads every NHANES file + the NCHS 2019 Linked Mortality File into data_raw/
+├── download_missing.sh          # re-fetches any file that failed the first download
+├── explore_vars.R               # exploratory variable inspection
+├── flow_figure.py               # participant flow diagram (Figure S1)
+├── gen_supplementary.py         # builds submission/supplementary_tables.docx from tables.md
+├── gen_tables.py                # builds tables.md from the results/ files (writes tables_generated.md for comparison)
+├── lod_table.R                  # limit-of-detection table by cycle (Table S8)
+├── make_figs.py                 # Figures 1-5 and Figure S1 (png/tiff/eps). THE ONLY FIGURE ENTRY POINT
+├── md_to_docx.py                # renders the markdown sources to the submission .docx files
+├── ph_test_10cyc.R              # proportional-hazards tests (Table S2)
+├── plot_figures.py              # earlier figure script, kept for provenance
+├── qgcss_splitsample.R          # sample-splitting analysis (Table S19)
+├── rcs3.R                       # restricted cubic splines, earlier implementation
+├── rcs_fix_contrast.R           # restricted cubic splines with the correct contrast variance (Figures 4-5)
+├── requirements.txt             # Python package versions used
+├── rev10_review9.R              # Zhang-Yu E-value conversion; unweighted cause-specific column (Table S14)
+├── rev11_addenda.R              # pairwise product terms (Table S22); mercury-cancer landmark analysis (Table S23)
+├── rev12_selection.R            # selection-bias comparison of participants excluded for missing blood metals (Table S24)
+├── rev5_sensitivity.R           # subsample weights, survey-cycle adjustment, delayed entry, Se-Hg, assay floor, E-values
+├── rev6_A.R                     # additional sensitivity analyses (Table S17)
+├── rev6_B.R                     # additional sensitivity analyses (Table S17)
+├── rev7_mi_ipw.R                # multiple imputation and inverse probability weighting (Table S20)
+├── rev7_mi_ipw_summarize.R      # summarises the imputation results without refitting
+├── rev8_direction_stability.R   # stability of the direction assignment (Table S13)
+├── rev9_supplementary.R         # winsorising, alternative trend tests, variance decomposition (Table S21)
+├── run_all.sh                   # end-to-end pipeline (17 steps)
+├── superscript_citations.py     # converts in-text citations to the superscript style used by the journal
+└── test_bkmr.R                  # smoke test for the exploratory BKMR fit
 ```
 
 Output directories (`data/`, `results/`, `figures/`) are created automatically
@@ -223,7 +212,7 @@ NHANES_ROOT=/mnt/nhanes Rscript analysis_reanalysis_B.R
 ./run_all.sh
 ```
 
-`run_all.sh` runs these 14 steps with `set -euo pipefail`:
+`run_all.sh` runs these 17 steps with `set -euo pipefail`:
 
 ```
  1  cleaning_v6.R             -> data/analysis_df.rds (+ data/exclusion_counts.csv)
@@ -238,8 +227,11 @@ NHANES_ROOT=/mnt/nhanes Rscript analysis_reanalysis_B.R
 10  rev8_direction_stability.R-> results/rev8_direction_stability.csv (Table S13)
 11  rev9_supplementary.R      -> results/rev9_*.csv (Table S21)
 12  rev10_review9.R           -> results/rev10_*.csv (E-value conversion; Table S14 column)
-13  make_figs.py              -> figures/fig1..fig5, figS1 (png/tiff/eps).  THE ONLY FIGURE ENTRY POINT
-14  gen_tables.py             -> tables.md  ;  gen_supplementary.py -> submission/supplementary_tables.docx
+13  rev11_addenda.R          -> results/rev11_*.csv (Tables S22-S23)
+14  rev12_selection.R        -> results/rev12_tableS24.* (Table S24)
+15  analysis_core / mixture / extra / supp / fish / se_mn.R -> results/*.csv (table inputs)
+16  make_figs.py              -> figures/fig1..fig5, figS1 (png/tiff/eps).  THE ONLY FIGURE ENTRY POINT
+17  gen_tables.py             -> tables.md  ;  gen_supplementary.py -> submission/supplementary_tables.docx
 ```
 
 Each script also runs on its own (for example `Rscript rev10_review9.R`) as long as
@@ -247,13 +239,18 @@ the preceding datasets exist. No script writes a figure that another script also
 writes: `make_figs.py` is the single figure entry point.
 
 ### BKMR (optional)
-### BKMR (optional)
 
-The exploratory BKMR fit requires the `bkmr` package and is computationally
-heavy (a random subsample of 800 participants is used in the paper). The
-summary figures (`bkmr_overall`, `bkmr_single`) can be redrawn from the
-`results/bkmr_*_summaries.csv` tables once the fit has been run; this step is
-not part of `run_all.sh`.
+**Status: exploratory only, not reported in the manuscript.** The `bkmr_*.R`
+scripts are kept in this repository for full transparency, but the BKMR fit is
+**not** part of the manuscript or of `run_all.sh`: unweighted mixture analyses
+of complex survey data such as NHANES cannot incorporate the sampling weights,
+strata and clusters, and the journal's guide for authors discourages
+submissions that analyse chemical mixtures in complex sampling designs with
+unweighted methods. In the manuscript, mixture effects are therefore estimated
+with survey-weighted quantile g-computation with directional decomposition, and
+the non-linear mixture analysis is deliberately omitted. Anyone wishing to
+reproduce the exploratory fit needs the `bkmr` package; computational cost grows
+roughly as O(N^3), so it was fitted on a random subsample of 800 participants.
 
 ---
 
@@ -317,13 +314,15 @@ availability statement of the manuscript. If you fork this repository, replace
 `the repository URL of your fork` with your own URL; creating a
 Zenodo release for a GitHub tag then provides the archival DOI.
 
-## BKMR fit
+## BKMR fit (exploratory; not part of the manuscript)
 
-The exploratory Bayesian kernel machine regression (BKMR) fit is provided in
-`bkmr_run.R` / `bkmr_local.R` (run in R with the `bkmr` package; computational cost grows
-roughly as O(N^3), so it was fitted on a random subsample of 800 participants). The
-manuscript figures for BKMR (Figures S2 and S3) are regenerated from
-`results/bkmr_*_summaries.csv` by `bkmr_post.R`, which does not require the `bkmr` package.
+`bkmr_run.R` / `bkmr_local.R` fit the exploratory Bayesian kernel machine regression
+(reproducing it requires the `bkmr` package; computational cost grows roughly as O(N^3),
+so it was fitted on a random subsample of 800 participants), and `bkmr_post.R`
+regenerates the summary objects without refitting. These scripts are retained here for
+transparency but produce **no result reported in the manuscript** — see the note under
+"Running the analysis" for the reason (survey-weighted mixture analysis is required for
+NHANES-type designs).
 
 ## Additional analyses
 
@@ -354,8 +353,24 @@ supersedes the corresponding part of `rev6_A.R`.
 variance of the spline contrast, which is the correct variance for a dose-response curve
 relative to its reference point (Figures 4 and 5).
 
+`rev11_addenda.R` fits the pairwise product terms between the three core metals
+(Table S22) and the mercury–cancer landmark analyses with delayed entry at 24, 48 and
+60 months (Table S23).
+
+`rev12_selection.R` characterises the participants who were excluded because no usable
+blood specimen was available for lead, cadmium or mercury (n = 8,640) and compares them
+with the analytic sample (n = 33,104) on the covariates used in the main models
+(Table S24). It reads `data/all_merged_df.rds`, the full merged frame written by
+`cleaning_v6.R` before the exclusion chain. Comparisons are unweighted, because the MEC
+examination weight exists only for participants who attended the examination and the
+excluded group includes non-attenders; a survey-weighted sensitivity comparison is
+restricted to participants with a positive weight.
+
 ## Citation
 
-If you use this code, please cite the archived version:/n/n> Wen Y. *Opposing directions in blood metal mixtures and mortality in US adults.* Zenodo. https://doi.org/10.5281/zenodo.22975596 (concept DOI; resolves to the latest version).
+If you use this code, please cite the archived version:
+
+> Wen Y. *Opposing directions in blood metal mixtures and mortality in US adults.* Zenodo.
+> https://doi.org/10.5281/zenodo.22975596 (concept DOI; resolves to the latest version).
 
 Source repository: https://github.com/wenyuxiangnihao/nhanes-blood-metals-mortality

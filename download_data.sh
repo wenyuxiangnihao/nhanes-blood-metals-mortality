@@ -38,7 +38,8 @@ dl() {  # $1 = FILE stem, $2 = start year
 dl_opt() { dl "$1" "$2" || true; }   # optional file, never abort
 
 dlm() { # $1 = cycle label (e.g. 1999_2000)
-  local fn="NHANES_${1}_MORT_2019_PUBLIC" out="$RAW/${fn}.dat"
+  local fn="NHANES_${1}_MORT_2019_PUBLIC"
+  local out="$RAW/${fn}.dat"
   if [ -s "$out" ]; then echo "  skip $fn.dat"; return 0; fi
   if curl -fsSL --retry 4 --retry-delay 2 -o "$out" "$MORTBASE/${fn}.dat"; then
     echo "  ok   $fn.dat"
@@ -64,10 +65,13 @@ for c in "${CYCLES[@]}"; do
   esac
 
   # --- serum cotinine: 1999/2001 ship inside LAB06 / L06_B; 2003 = L06COT_C; 2005+ = COT_x
+  #     2007-2008 does not publish COT_E; the cycle ships COTNAL_E instead (fetched
+  #     as an optional file below). These are tolerated as optional because cotinine
+  #     is not part of the complete-case covariate set of the primary analysis.
   case "$yr" in
     1999|2001) : ;;
     2003)      dl L06COT_C "$yr" ;;
-    *)         dl "COT${suf}" "$yr" ;;
+    *)         dl_opt "COT${suf}" "$yr" ;;
   esac
 
   # --- demographics / examination / questionnaire

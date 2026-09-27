@@ -143,6 +143,10 @@ df$event_all <- as.integer(df$mortstat==1)
 df$event_cvd <- df$cvd_death
 
 # ---------- exclusion chain ----------
+# v7 (Table S24): keep the full merged frame, so that participants who were
+# excluded before the analytic sample (in particular those with no usable blood
+# specimen, n = 8,640) can be compared with those included.
+saveRDS(df, file.path(OUT, "all_merged_df.rds"))
 ec <- data.frame(step=character(), n=integer())
 allcyc <- sort(unique(df$cycle))
 add <- function(lbl, d){
