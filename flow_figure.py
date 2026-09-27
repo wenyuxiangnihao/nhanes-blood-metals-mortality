@@ -31,6 +31,6 @@ box(5.52, "Excluded: no follow-up time  n = 8\nmissing covariates  n = 3,639", h
 arrow(5.52, 5.12)
 box(4.10, "Analytic sample  n = 33,104\nall-cause deaths 4,260  |  cardiovascular deaths 1,332\nmedian follow-up 9.3 years", h=0.95, fc="#e8f6ee", ec="#1e8449")
 arrow(4.10, 3.70)
-box(2.35, "Sub-analyses\n\u2022 selenium / manganese (2011\u20132018): n = 13,460 (805 / 240 deaths)\n\u2022 marine n-3 sensitivity (2011\u20132014): n = 3,258\n\u2022 further sensitivity and subgroup analyses: Tables S1\u2013S24", h=1.30, fc="#fef9e7", ec="#b9770e")
+box(2.35, "Sub-analyses\n\u2022 selenium / manganese (2011\u20132018): n = 13,460 (805 / 240 deaths)\n\u2022 marine n-3 sensitivity (2011\u20132014): n = 3,258\n\u2022 further sensitivity and subgroup analyses: Tables S1\u2013S25", h=1.30, fc="#fef9e7", ec="#b9770e")
 plt.tight_layout(); savefig3("figS1_flow")
 print("ok")

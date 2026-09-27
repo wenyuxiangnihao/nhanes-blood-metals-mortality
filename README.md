@@ -69,6 +69,7 @@ negative-direction partial effects is more informative than ψ alone.
 ├── gen_tables.py                # builds tables.md from the results/ files (writes tables_generated.md for comparison)
 ├── lod_table.R                  # limit-of-detection table by cycle (Table S8)
 ├── make_figs.py                 # Figures 1-5 and Figure S1 (png/tiff/eps). THE ONLY FIGURE ENTRY POINT
+├── normalise_figures.py         # makes figures_submission/ plain RGB at >= 300 dpi and refreshes figures_preview/
 ├── md_to_docx.py                # renders the markdown sources to the submission .docx files
 ├── ph_test_10cyc.R              # proportional-hazards tests (Table S2)
 ├── plot_figures.py              # earlier figure script, kept for provenance
@@ -79,6 +80,7 @@ negative-direction partial effects is more informative than ψ alone.
 ├── rev10_review9.R              # Zhang-Yu E-value conversion; unweighted cause-specific column (Table S14)
 ├── rev11_addenda.R              # pairwise product terms (Table S22); mercury-cancer landmark analysis (Table S23)
 ├── rev12_selection.R            # selection-bias comparison of participants excluded for missing blood metals (Table S24)
+├── rev13_period_restricted.R    # sensitivity analysis restricted to the 2003-2018 cycles (Table S25)
 ├── rev5_sensitivity.R           # subsample weights, survey-cycle adjustment, delayed entry, Se-Hg, assay floor, E-values
 ├── rev6_A.R                     # additional sensitivity analyses (Table S17)
 ├── rev6_B.R                     # additional sensitivity analyses (Table S17)
@@ -86,7 +88,7 @@ negative-direction partial effects is more informative than ψ alone.
 ├── rev7_mi_ipw_summarize.R      # summarises the imputation results without refitting
 ├── rev8_direction_stability.R   # stability of the direction assignment (Table S13)
 ├── rev9_supplementary.R         # winsorising, alternative trend tests, variance decomposition (Table S21)
-├── run_all.sh                   # end-to-end pipeline (17 steps)
+├── run_all.sh                   # end-to-end pipeline (18 steps)
 ├── superscript_citations.py     # converts in-text citations to the superscript style used by the journal
 └── test_bkmr.R                  # smoke test for the exploratory BKMR fit
 ```
@@ -214,7 +216,7 @@ NHANES_ROOT=/mnt/nhanes Rscript analysis_reanalysis_B.R
 ./run_all.sh
 ```
 
-`run_all.sh` runs these 17 steps with `set -euo pipefail`:
+`run_all.sh` runs these 18 steps with `set -euo pipefail`:
 
 ```
  1  cleaning_v6.R             -> data/analysis_df.rds (+ data/exclusion_counts.csv)
@@ -231,9 +233,11 @@ NHANES_ROOT=/mnt/nhanes Rscript analysis_reanalysis_B.R
 12  rev10_review9.R           -> results/rev10_*.csv (E-value conversion; Table S14 column)
 13  rev11_addenda.R          -> results/rev11_*.csv (Tables S22-S23)
 14  rev12_selection.R        -> results/rev12_tableS24.* (Table S24)
-15  analysis_core / mixture / extra / supp / fish / se_mn.R -> results/*.csv (table inputs)
-16  make_figs.py              -> figures/fig1..fig5, figS1 (png/tiff/eps).  THE ONLY FIGURE ENTRY POINT
-17  gen_tables.py             -> tables.md  ;  gen_supplementary.py -> submission/supplementary_tables.docx
+15  rev13_period_restricted.R -> results/rev13_period_restricted.csv (Table S25)
+16  analysis_core / mixture / extra / supp / fish / se_mn.R -> results/*.csv (table inputs)
+17  make_figs.py              -> figures/fig1..fig5, figS1 (png/tiff/eps)
+    normalise_figures.py      -> recasts them as RGB >= 300 dpi and rebuilds figures_preview/
+18  gen_tables.py             -> tables.md  ;  gen_supplementary.py -> submission/supplementary_tables.docx
 ```
 
 Each script also runs on its own (for example `Rscript rev10_review9.R`) as long as
@@ -367,6 +371,10 @@ with the analytic sample (n = 33,104) on the covariates used in the main models
 examination weight exists only for participants who attended the examination and the
 excluded group includes non-attenders; a survey-weighted sensitivity comparison is
 restricted to participants with a positive weight.
+
+`rev13_period_restricted.R` repeats the primary analyses after restricting the cohort to the
+2003-2018 cycles, in which blood metals were measured in the full examined sample rather than in
+a subsample (Table S25).
 
 ## Citation
 
