@@ -4,9 +4,9 @@ Analysis code for a pooled, nationally representative NHANES study (10 cycles,
 1999–2018) of blood **lead, cadmium and mercury** (and, for 2011–2018,
 **selenium and manganese**) in relation to **all-cause and cardiovascular
 mortality** (NCHS 2019 Linked Mortality File). We use survey-weighted Cox
-models, quantile g-computation with a directional decomposition, exploratory
-Bayesian kernel machine regression (BKMR), restricted cubic splines and a large
-set of sensitivity / subgroup / cause-specific analyses.
+models, quantile g-computation with a directional decomposition, restricted
+cubic splines and a large set of sensitivity / subgroup / cause-specific
+analyses.
 
 Key point: because cadmium and lead act in the opposite direction to mercury,
 the single net mixture effect conceals both — reporting the positive- and
@@ -27,7 +27,7 @@ negative-direction partial effects is more informative than ψ alone.
 | Analytic sample | 33,104 adults ≥20 y (4,260 all-cause, 1,332 CVD deaths) |
 | Exposures | Blood Pb (`LBXBPB`), Cd (`LBXBCD`), Hg (`LBXTHG`); Se (`LBXBSE`), Mn (`LBXBMN`) 2011–2018 |
 | Outcomes | All-cause (`event_all`) and CVD (`event_cvd`) mortality |
-| Main methods | Survey-weighted Cox; quantile g-computation + directional decomposition; BKMR; RCS |
+| Main methods | Survey-weighted Cox; quantile g-computation + directional decomposition; RCS |
 | Software | R 4.5.3, Python 3 (see §4) |
 
 ---
@@ -164,10 +164,12 @@ by `cleaning.R` are `SEQN` (1–6), `eligstat` (15), `mortstat` (16),
 * `splines` — `ns()` for restricted cubic splines
 * `foreign` — `read.xport()` for NHANES `*.XPT`
 * `haven` — alternative XPT reader (optional)
-* `bkmr` — BKMR (optional; only for the exploratory fit)
+* `bkmr` — BKMR (**not used in the manuscript**; needed only to re-run the exploratory script, installed separately)
 
 ```r
-install.packages(c("survey","survival","splines","foreign","haven","bkmr"))
+install.packages(c("survey","survival","splines","foreign","haven"))
+# `bkmr` is NOT needed to reproduce the manuscript; install it only if you want to
+# re-run the exploratory (unreported) fit:  install.packages("bkmr")
 ```
 
 **Python 3** with:
@@ -238,7 +240,7 @@ Each script also runs on its own (for example `Rscript rev10_review9.R`) as long
 the preceding datasets exist. No script writes a figure that another script also
 writes: `make_figs.py` is the single figure entry point.
 
-### BKMR (optional)
+### BKMR (exploratory script only; not used in the manuscript)
 
 **Status: exploratory only, not reported in the manuscript.** The `bkmr_*.R`
 scripts are kept in this repository for full transparency, but the BKMR fit is
@@ -296,7 +298,7 @@ roughly as O(N^3), so it was fitted on a random subsample of 800 participants.
 
 ## 9. License and citation
 
-Released under the **MIT License** — see `LICENSE` (© 2025 Yuxiang Wen).
+Released under the **MIT License** — see `LICENSE` (© 2026 Yuxiang Wen).
 Machine-readable citation metadata are in `CITATION.cff` and `.zenodo.json`.
 
 If you use this code, please cite:
