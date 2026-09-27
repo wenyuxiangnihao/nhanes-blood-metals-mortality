@@ -12,7 +12,7 @@ abstract: >-
 authors:
   - family-names: Wen
     given-names: Yuxiang
-version: 1.0.6
+version: 1.0.7
 date-released: "2026-09-27"
 license: MIT
 doi: 10.5281/zenodo.22975596
