@@ -20,6 +20,9 @@ MET5 <- c("LBXBPB","LBXBCD","LBXTHG","LBXBSE","LBXBMN")
 COVS <- "RIDAGEYR + factor(RIAGENDR) + factor(RIDRETH1) + factor(educ) + INDFMPIR + BMXBMI + factor(smoke) + dm + htn + cvd"
 
 # ---- quantile g-computation (weighted Cox) ----
+# psi is DEFINED as the sum of the separate quantile-score coefficients
+# (psi = Sum beta), matching the manuscript; SE from the full sub-block
+# of the model variance-covariance matrix.
 qgcomp_cox <- function(dat, expnms, event, q=4){
   dq <- dat
   for(m in expnms){
@@ -28,14 +31,19 @@ qgcomp_cox <- function(dat, expnms, event, q=4){
     dq[[paste0("qc_",m)]] <- as.integer(cut(dat[[m]], breaks=br, labels=FALSE, include.lowest=TRUE))-1
   }
   qcols <- paste0("qc_",expnms)
-  dq$S <- rowSums(dq[,qcols])
   desq <- svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~wt, nest=TRUE, data=dq)
-  f1 <- as.formula(paste0("Surv(time,",event,") ~ S + ", COVS))
-  fit1 <- svycoxph(f1, design=desq)
-  psi <- coef(fit1)["S"]; se <- sqrt(vcov(fit1)["S","S"])
   f2 <- as.formula(paste0("Surv(time,",event,") ~ ", paste(qcols,collapse="+"), " + ", COVS))
-  fit2 <- svycoxph(f2, design=desq); b <- coef(fit2)[qcols]
-  list(psi=psi, se=se, HR=exp(psi), lo=exp(psi-1.96*se), hi=exp(psi+1.96*se), b=b)
+  fit2 <- svycoxph(f2, design=desq)
+  V <- vcov(fit2)[qcols, qcols, drop=FALSE]
+  b <- coef(fit2)[qcols]
+  psi <- sum(b); se <- sqrt(sum(V))
+  ip <- which(b > 0); im <- which(b < 0)
+  psi_plus  <- if(length(ip)) sum(b[ip]) else 0
+  se_plus   <- if(length(ip)) sqrt(sum(V[ip, ip])) else 0
+  psi_minus <- if(length(im)) sum(b[im]) else 0
+  se_minus  <- if(length(im)) sqrt(sum(V[im, im])) else 0
+  list(psi=psi, se=se, HR=exp(psi), lo=exp(psi-1.96*se), hi=exp(psi+1.96*se), b=b,
+       psi_plus=psi_plus, se_plus=se_plus, psi_minus=psi_minus, se_minus=se_minus)
 }
 
 out <- data.frame()
@@ -46,7 +54,8 @@ for(setname in c("3-metal","5-metal")){
   for(ev in c("event_all","event_cvd")){
     r <- qgcomp_cox(dd, exps, ev)
     out <- rbind(out, data.frame(set=setname, outcome=ev, n=nrow(dd),
-      HR=r$HR, lo=r$lo, hi=r$hi, p=2*pnorm(-abs(r$psi/r$se))))
+      HR=r$HR, lo=r$lo, hi=r$hi, p=2*pnorm(-abs(r$psi/r$se)),
+      psi_plus=r$psi_plus, se_plus=r$se_plus, psi_minus=r$psi_minus, se_minus=r$se_minus))
     b <- r$b
     for(m in names(b)) wout <- rbind(wout, data.frame(set=setname, outcome=ev, exposure=m,
       beta_unscaled=b[[m]], weight_pos=if(b[[m]]>0) b[[m]]/sum(b[b>0]) else NA,
