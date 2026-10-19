@@ -15,8 +15,8 @@
 #   | S4 all-null. Estimators: unweighted / naive case-weight / full survey.
 # Decomposition by estimated signs (paper) and by true signs (a-priori).
 # 400 replicates per cell, seed 20261019.
-# Output: results/sim_perrep.csv, results/sim_summary.csv,
-#         results/sim_calibration.csv
+# Output: results/sim_perrep<SUFFIX>.csv, results/sim_summary<SUFFIX>.csv,
+#         results/sim_calibration<SUFFIX>.csv
 # =====================================================================
 if (!nzchar(Sys.getenv("NHANES_ROOT"))) {
   .ca <- commandArgs(trailingOnly = FALSE)
@@ -27,6 +27,7 @@ ROOT <- Sys.getenv("NHANES_ROOT")
 suppressMessages({library(survey); library(survival); library(MASS); library(parallel)})
 options(survey.lonely.psu = "adjust")
 RES <- file.path(ROOT, "results"); dir.create(RES, showWarnings = FALSE, recursive = TRUE)
+SFIX <- ifelse(Sys.getenv("SIM_GAMMA") == "estimated", "_gammaest", "")
 d <- readRDS(file.path(ROOT, "data", "analysis_df.rds"))
 
 # ---------------- calibration ----------------
@@ -52,10 +53,10 @@ mkcols <- function(dat){
     smokeF=as.integer(dat$smoke==1), smokeC=as.integer(dat$smoke==2),
     dm=dat$dm, htn=dat$htn, cvd=dat$cvd)
 }
-GAM <- c(age10=0.65, male=0.35, raceMex=-0.05, raceOH=-0.05, raceNHB=0.15, raceOth=0.00,
-         educ2=0.05, educ3=-0.05, educ4=-0.15, educ5=-0.25, pir5=-0.08, bmi5=-0.02,
-         smokeF=0.20, smokeC=0.60, dm=0.65, htn=0.45, cvd=0.85)
-CVCOLS <- names(GAM)
+GAM_FIXED <- c(age10=0.65, male=0.35, raceMex=-0.05, raceOH=-0.05, raceNHB=0.15, raceOth=0.00,
+               educ2=0.05, educ3=-0.05, educ4=-0.15, educ5=-0.25, pir5=-0.08, bmi5=-0.02,
+               smokeF=0.20, smokeC=0.60, dm=0.65, htn=0.45, cvd=0.85)
+CVCOLS <- names(GAM_FIXED)
 BETA_M <- rbind(coef(lmPb)[-1], coef(lmCd)[-1], coef(lmHg)[-1])   # 3 x p
 INT_M  <- c(coef(lmPb)[1], coef(lmCd)[1], coef(lmHg)[1])
 
@@ -68,6 +69,21 @@ H0_TARGET <- -log(1 - 0.13) / 240
 qs <- function(v){ b <- unique(quantile(v, probs=seq(0,1,length.out=5), na.rm=TRUE))
   b[1] <- -Inf; b[length(b)] <- Inf
   as.integer(cut(v, breaks=b, include.lowest=TRUE, labels=FALSE)) - 1 }
+
+if (Sys.getenv("SIM_GAMMA") == "estimated") {
+  # covariate effects estimated from the real survey-weighted Cox model
+  # (3-metal quartile scores + covariates, all-cause), ordered as CVCOLS
+  qd <- cbind(mkcols(d), d[, c("time","event_all","SDMVPSU","SDMVSTRA","wt")])
+  qd$dm[is.na(qd$dm)] <- 0; qd$htn[is.na(qd$htn)] <- 0
+  for (m in c("LBXBPB","LBXBCD","LBXTHG")) qd[[paste0("q", m)]] <- qs(d[[m]])
+  des0 <- svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~wt, nest=TRUE, data=qd)
+  fit0 <- svycoxph(as.formula(paste("Surv(time, event_all) ~ qLBXBPB + qLBXBCD + qLBXTHG +",
+                                    paste(CVCOLS, collapse = " + "))), design = des0)
+  GAM <- coef(fit0)[CVCOLS]
+  cat("GAMMA estimated from the real Model-3 fit:\n"); print(round(GAM, 4))
+} else {
+  GAM <- GAM_FIXED
+}
 
 decompose <- function(b, V, plusT, minusT){
   ip <- which(b > 0); im <- which(b < 0)
@@ -161,7 +177,7 @@ stopCluster(cl)
 cat("cell errors:\n"); print(lapply(allres, attr, "errors"))
 perrep <- do.call(rbind, Filter(Negate(is.null), allres))
 perrep <- as.data.frame(perrep)
-write.csv(perrep, file.path(RES, "sim_perrep.csv"), row.names = FALSE)
+write.csv(perrep, file.path(RES, paste0("sim_perrep", SFIX, ".csv")), row.names = FALSE)
 
 ci_cov <- function(est, se, truth) mean((est - 1.96*se <= truth) & (truth <= est + 1.96*se))
 summ <- do.call(rbind, lapply(seq_len(nrow(cells)), function(i){
@@ -182,6 +198,6 @@ summ <- do.call(rbind, lapply(seq_len(nrow(cells)), function(i){
                    sign(s$b_Cd)==sign(SCEN[[cells$scen[i]]]["LBXBCD"]) &
                    sign(s$b_Hg)==sign(SCEN[[cells$scen[i]]]["LBXTHG"])))
 }))
-write.csv(summ, file.path(RES, "sim_summary.csv"), row.names = FALSE)
+write.csv(summ, file.path(RES, paste0("sim_summary", SFIX, ".csv")), row.names = FALSE)
 cat("done in", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), "min\n")
 print(summ, row.names = FALSE, digits = 3)
